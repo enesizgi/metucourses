@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Dropdown from './components/InputBox';
-import { serverURL } from './constants';
 
 const App = () => {
   const [dropdownValue, setDropdownValue] = useState();
