@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Dropdown from './components/InputBox';
-import { departmentsJSONUrl, coursesJSONUrl, departmentsAbbreviationsJSONUrl } from './constants';
+import { departmentsJSONUrl, coursesJSONUrl } from './constants';
 
 const App = () => {
   const [dropdownValue, setDropdownValue] = useState();
@@ -9,13 +9,12 @@ const App = () => {
   const [selectedDepartment, setSelectedDepartment] = useState({});
   const [courses, setCourses] = useState([]); // eslint-disable-line
   const [rawCourses, setRawCourses] = useState([]);
-  const [depAbbreviatons, setDepAbbreviatons] = useState([]);
 
+  console.log(courses);
   const dropdownOnChange = value => {
     setDropdownValue(value);
     const foundDepartment = departments.find(department => department.value === value);
-    const depWithExtraInfo = (depAbbreviatons.length > 0 && depAbbreviatons.result.find(dep => dep.programCode === value)) || {};
-    setSelectedDepartment({ ...foundDepartment, additionalInfo: depWithExtraInfo });
+    setSelectedDepartment(foundDepartment);
   };
 
   useEffect(() => {
@@ -40,7 +39,7 @@ const App = () => {
       try {
         const response = await fetch(departmentsJSONUrl);
         const data = await response.json();
-        setDepartments(data.result);
+        setDepartments(data);
       } catch (error) {
         console.log(error);
       }
@@ -54,18 +53,8 @@ const App = () => {
         console.log(error);
       }
     }
-    const getDepAbbreviations = async () => {
-      try {
-        const response = await fetch(departmentsAbbreviationsJSONUrl);
-        const data = await response.json();
-        setDepAbbreviatons(data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
     getDepartments();
     getCourses();
-    getDepAbbreviations();
   }, []);
 
   return (
@@ -79,6 +68,13 @@ const App = () => {
         <label htmlFor="year">Year: </label>
         <input type="text" id="year" />
       </>
+      {courses.map(course => {
+        return (
+          <div key={course.department.value}>
+            {course.department.text}
+          </div>
+        );
+      })}
     </>
   );
 }

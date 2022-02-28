@@ -3,6 +3,3 @@ export const departmentsJSONUrl = process.env.NODE_ENV === 'development' ?
 
 export const coursesJSONUrl = process.env.NODE_ENV === 'development' ?
     'http://localhost:5001/api/courses' : 'https://raw.githubusercontent.com/enesizgi/crawler-assets/master/courses.json';
-
-export const departmentsAbbreviationsJSONUrl = process.env.NODE_ENV === 'development' ?
-    'http://localhost:5001/api/deps' : 'https://raw.githubusercontent.com/enesizgi/crawler-assets/master/departmentsAbbreviations.json';
