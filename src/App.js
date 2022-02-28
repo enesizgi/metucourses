@@ -9,7 +9,7 @@ const App = () => {
   const [courses, setCourses] = useState([]);
   const [rawCourses, setRawCourses] = useState([]);
   const [depAbbreviatons, setDepAbbreviatons] = useState([]);
-  console.log('testing actions');
+  console.log('testing');
   const dropdownOnChange = value => {
     setDropdownValue(value);
     const foundDepartment = departments.find(department => department.value === value);
