@@ -6,7 +6,7 @@ const App = () => {
   const [dropdownValue, setDropdownValue] = useState();
   const [departments, setDepartments] = useState({});
   const [selectedDepartment, setSelectedDepartment] = useState({});
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]); // eslint-disable-line
   const [rawCourses, setRawCourses] = useState([]);
   const [depAbbreviatons, setDepAbbreviatons] = useState([]);
   console.log('testing');
