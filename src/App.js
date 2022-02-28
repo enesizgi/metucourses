@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Dropdown from './components/InputBox';
+import { departmentsJSONUrl, coursesJSONUrl, departmentsAbbreviationsJSONUrl } from './constants';
 
 const App = () => {
   const [dropdownValue, setDropdownValue] = useState();
@@ -31,25 +32,36 @@ const App = () => {
       return { ...course, courses: foundCourses };
     });
     availableCourses = availableCourses.filter(course => course?.courses?.length > 0);
-    console.log(availableCourses);
     setCourses(availableCourses);
   }, [selectedDepartment, rawCourses]);
 
   useEffect(() => {
     const getDepartments = async () => {
-      const response = await fetch('https://raw.githubusercontent.com/enesizgi/crawler-assets/master/departments.json');
-      const data = await response.json();
-      setDepartments(data.result);
+      try {
+        const response = await fetch(departmentsJSONUrl);
+        const data = await response.json();
+        setDepartments(data.result);
+      } catch (error) {
+        console.log(error);
+      }
     }
     const getCourses = async () => {
-      const response = await fetch('https://raw.githubusercontent.com/enesizgi/crawler-assets/master/courses.json');
-      const data = await response.json();
-      setRawCourses(data);
+      try {
+        const response = await fetch(coursesJSONUrl);
+        const data = await response.json();
+        setRawCourses(data);
+      } catch (error) {
+        console.log(error);
+      }
     }
     const getDepAbbreviations = async () => {
-      const response = await fetch('https://raw.githubusercontent.com/enesizgi/crawler-assets/master/departmentsAbbreviations.json');
-      const data = await response.json();
-      setDepAbbreviatons(data);
+      try {
+        const response = await fetch(departmentsAbbreviationsJSONUrl);
+        const data = await response.json();
+        setDepAbbreviatons(data);
+      } catch (error) {
+        console.log(error);
+      }
     }
     getDepartments();
     getCourses();
