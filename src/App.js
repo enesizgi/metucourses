@@ -12,6 +12,7 @@ const App = () => {
   const [closedDeps, setClosedDeps] = useState([]);
   const [isCriteriaEnabled, setIsCriteriaEnabled] = useState(true);
   const [year, setYear] = useState('');
+  const [updatedAt, setUpdatedAt] = useState('');
 
   // console.log(courses);
   const dropdownOnChange = value => {
@@ -36,8 +37,6 @@ const App = () => {
     }
   }
 
-
-
   useEffect(() => {
     if (rawCourses.length === 0) return;
     const filteredCourses = rawCourses.filter(course => course?.courses?.length > 0);
@@ -45,7 +44,6 @@ const App = () => {
     let availableCourses = filteredCourses.map(rawCourse => {
       const foundCourses = rawCourse.courses.filter(course => {
         const category = courseCategories.find(category => category.courseCode === course.courseCode)?.courseCategory;
-        // if (category) return false;
         if (['MUST', 'TECHNICAL ELECTIVE', 'DEPARTMENTAL ELECTIVE'].includes(category) || category?.includes('RESTRICTED ELECTIVE')) return false;
         if (course.courseLevel.toLowerCase().includes('graduate') && !course.courseLevel.toLowerCase().includes('undergraduate')) return false;
         if (course.courseCredit.startsWith('0.')) return false;
@@ -69,7 +67,7 @@ const App = () => {
       try {
         const response = await fetch(departmentsJSONUrl);
         const data = await response.json();
-        setDepartments(data);
+        setDepartments(data.result);
       } catch (error) {
         console.log(error);
       }
@@ -78,7 +76,8 @@ const App = () => {
       try {
         const response = await fetch(coursesJSONUrl);
         const data = await response.json();
-        setRawCourses(data);
+        setRawCourses(data.result);
+        setUpdatedAt(data.updatedAt);
       } catch (error) {
         console.log(error);
       }
@@ -108,6 +107,9 @@ const App = () => {
         <button style={{ marginLeft: '20px' }} onClick={handleCriteriaChange}>
           {`${isCriteriaEnabled ? 'Enable' : 'Disable'} sections with no criteria`}
         </button>
+      </div>
+      <div style={{ paddingBottom: '10px' }}>
+        Updated at: {updatedAt}
       </div>
       {courses.map(course => {
         return (
