@@ -4,7 +4,6 @@ import Dropdown from './components/InputBox';
 import { departmentsJSONUrl, coursesJSONUrl } from './constants';
 
 const App = () => {
-  const [dropdownValue, setDropdownValue] = useState();
   const [departments, setDepartments] = useState({});
   const [selectedDepartment, setSelectedDepartment] = useState({});
   const [courses, setCourses] = useState([]); // eslint-disable-line
@@ -16,7 +15,6 @@ const App = () => {
 
   // console.log(courses);
   const dropdownOnChange = value => {
-    setDropdownValue(value);
     const foundDepartment = departments.find(department => department.value === value);
     setSelectedDepartment(foundDepartment);
   };
@@ -68,6 +66,7 @@ const App = () => {
         const response = await fetch(departmentsJSONUrl);
         const data = await response.json();
         setDepartments(data.result);
+        setSelectedDepartment(data.result[0]);
       } catch (error) {
         console.log(error);
       }
@@ -88,11 +87,10 @@ const App = () => {
 
   return (
     <>
-
       <div>
         <Dropdown
           optionList={departments}
-          value={dropdownValue}
+          value={selectedDepartment.value}
           onChange={dropdownOnChange}
         />
       </div>
@@ -100,7 +98,7 @@ const App = () => {
       <div style={{ paddingBottom: '10px' }}>
         <label htmlFor="year">Your academic year: </label>
         <Dropdown
-          optionList={['','1','2','3','4']}
+          optionList={['', '1', '2', '3', '4']}
           value={year}
           onChange={handleYearChange}
         />
@@ -113,7 +111,7 @@ const App = () => {
       </div>
       {courses.map(course => {
         return (
-          <div key={course.department.deptName} style={{marginBottom: '10px'}}>
+          <div key={course.department.deptName} style={{ marginBottom: '10px' }}>
             <button key={course.department.deptName} onClick={handleDepClose} id={course.department.deptName}>
               {course.department.text}
             </button>
