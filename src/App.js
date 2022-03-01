@@ -9,30 +9,60 @@ const App = () => {
   const [selectedDepartment, setSelectedDepartment] = useState({});
   const [courses, setCourses] = useState([]); // eslint-disable-line
   const [rawCourses, setRawCourses] = useState([]);
+  const [closedDeps, setClosedDeps] = useState([]);
+  const [isCriteriaEnabled, setIsCriteriaEnabled] = useState(true);
+  const [year, setYear] = useState('');
 
-  console.log(courses);
+  // console.log(courses);
   const dropdownOnChange = value => {
     setDropdownValue(value);
     const foundDepartment = departments.find(department => department.value === value);
     setSelectedDepartment(foundDepartment);
   };
 
+  const handleCriteriaChange = () => {
+    setIsCriteriaEnabled(state => !state);
+  };
+
+  const handleYearChange = value => {
+    setYear(value);
+  }
+
+  const handleDepClose = (dep) => {
+    if (closedDeps.includes(dep.target.id)) {
+      setClosedDeps(state => state.filter(d => d !== dep.target.id));
+    } else {
+      setClosedDeps(state => [...state, dep.target.id]);
+    }
+  }
+
+
+
   useEffect(() => {
+    if (rawCourses.length === 0) return;
     const filteredCourses = rawCourses.filter(course => course?.courses?.length > 0);
-    let availableCourses = filteredCourses.map(course => {
-      const foundCourses = course.courses.filter(course => {
+    const courseCategories = filteredCourses.find(i => i.department.value === selectedDepartment.programCode)?.department?.courseCategories || [];
+    let availableCourses = filteredCourses.map(rawCourse => {
+      const foundCourses = rawCourse.courses.filter(course => {
+        const category = courseCategories.find(category => category.courseCode === course.courseCode)?.courseCategory;
+        // if (category) return false;
+        if (['MUST', 'TECHNICAL ELECTIVE', 'DEPARTMENTAL ELECTIVE'].includes(category) || category?.includes('RESTRICTED ELECTIVE')) return false;
+        if (course.courseLevel.toLowerCase().includes('graduate') && !course.courseLevel.toLowerCase().includes('undergraduate')) return false;
+        if (course.courseCredit.startsWith('0.')) return false;
+        if (course.courseLevel.toLowerCase().includes('master')) return false;
+        if (rawCourse.department.text.includes('Kuzey Kıbrıs')) return false;
         return course.courseSections.find(section => {
-          if (!section.sectionCriterias) return false;
+          if (!section.sectionCriterias && !isCriteriaEnabled) return true;
           return section.sectionCriterias?.find(criteria => {
-            return [selectedDepartment?.additionalInfo?.deptName, "ALL"].includes(criteria.givenDept) && criteria.minYear < 5 && criteria.maxYear > 3;
+            return [selectedDepartment.deptName, "ALL"].includes(criteria.givenDept) && (year ? (criteria.minYear <= year && criteria.maxYear >= year) : true);
           });
         });
       });
-      return { ...course, courses: foundCourses };
+      return { ...rawCourse, courses: foundCourses };
     });
-    availableCourses = availableCourses.filter(course => course?.courses?.length > 0);
+    availableCourses = availableCourses.filter(course => course?.courses?.length > 0 && course?.department.value !== '571');
     setCourses(availableCourses);
-  }, [selectedDepartment, rawCourses]);
+  }, [selectedDepartment, rawCourses, isCriteriaEnabled, year]);
 
   useEffect(() => {
     const getDepartments = async () => {
@@ -59,20 +89,42 @@ const App = () => {
 
   return (
     <>
-      <Dropdown
-        optionList={departments}
-        value={dropdownValue}
-        onChange={dropdownOnChange}
-      />
-      <>
-        <label htmlFor="year">Year: </label>
-        <input type="text" id="year" />
-      </>
+
+      <div>
+        <Dropdown
+          optionList={departments}
+          value={dropdownValue}
+          onChange={dropdownOnChange}
+        />
+      </div>
+      <br />
+      <div style={{ paddingBottom: '10px' }}>
+        <label htmlFor="year">Your academic year: </label>
+        <Dropdown
+          optionList={['','1','2','3','4']}
+          value={year}
+          onChange={handleYearChange}
+        />
+        <button style={{ marginLeft: '20px' }} onClick={handleCriteriaChange}>
+          {`${isCriteriaEnabled ? 'Enable' : 'Disable'} sections with no criteria`}
+        </button>
+      </div>
       {courses.map(course => {
         return (
-          <div key={course.department.value}>
-            {course.department.text}
+          <div key={course.department.deptName} style={{marginBottom: '10px'}}>
+            <button key={course.department.deptName} onClick={handleDepClose} id={course.department.deptName}>
+              {course.department.text}
+            </button>
+            {!closedDeps.includes(course.department.deptName) && course.courses.map(course2 => {
+              return (
+                <div key={course2.courseCode}>
+                  {course2.courseCode} - {course2.courseName} - {course2.courseCredit}
+                </div>
+              );
+            })}
+            <br />
           </div>
+
         );
       })}
     </>

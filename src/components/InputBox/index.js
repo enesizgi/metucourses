@@ -15,7 +15,7 @@ const Dropdown = ({
         <select value={value} onChange={handleChange}>
             {
                 optionList.map(option => (
-                    <option key={option.value} value={option.value}>{option.text}</option>
+                    <option key={option.value || option} value={option.value || option}>{option.text || option}</option>
                 ))
             }
         </select >
